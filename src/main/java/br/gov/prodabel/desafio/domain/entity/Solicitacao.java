@@ -1,9 +1,19 @@
 package br.gov.prodabel.desafio.domain.entity;
 
+import br.gov.prodabel.desafio.domain.enums.StatusSolicitacao;
 import jakarta.persistence.*;
+import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
 @Entity
 @Table(name = "solicitacao")
 public class Solicitacao {
@@ -13,7 +23,13 @@ public class Solicitacao {
     private Long id;
 
     private String descricao;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private StatusSolicitacao status;
+
+    private String bairro;
+
+    private LocalDateTime dataCriacao;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
@@ -24,66 +40,4 @@ public class Solicitacao {
     private Funcionario funcionario;
 
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
-    public Funcionario getFuncionario() {
-        return funcionario;
-    }
-
-    public void setFuncionario(Funcionario funcionario) {
-        this.funcionario = funcionario;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Solicitacao that = (Solicitacao) o;
-        return Objects.equals(id, that.id) && Objects.equals(descricao, that.descricao) && Objects.equals(status, that.status) && Objects.equals(usuario, that.usuario) && Objects.equals(funcionario, that.funcionario);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, descricao, status, usuario, funcionario);
-    }
-
-    @Override
-    public String toString() {
-        return "Solicitacao{" +
-                "id=" + id +
-                ", descricao='" + descricao + '\'' +
-                ", status='" + status + '\'' +
-                ", usuario=" + usuario +
-                ", funcionario=" + funcionario +
-                '}';
-    }
 }
