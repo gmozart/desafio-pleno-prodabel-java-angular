@@ -28,6 +28,4 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
             @Param("cep") String cep
     );
 
-
-
 }
