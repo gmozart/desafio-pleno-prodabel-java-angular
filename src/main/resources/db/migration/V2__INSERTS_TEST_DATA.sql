@@ -9,10 +9,10 @@ INSERT INTO bairro (nome, cep, cidade, estado) VALUES
 ('Vila Nova', '28040-000', 'Campos dos Goytacazes', 'RJ');
 
 -- Usuários
-INSERT INTO usuario (nome, email, bairro) VALUES
-('Alice Silva', 'alice@email.com', 'Centro'),
-('Bruno Souza', 'bruno@email.com', 'Jardim América'),
-('Carla Pereira', 'carla@email.com', 'Vila Nova');
+INSERT INTO usuario (nome, email, bairro_id) VALUES
+('Alice Silva', 'alice@email.com', 1),
+('Bruno Souza', 'bruno@email.com', 2),
+('Carla Pereira', 'carla@email.com', 3);
 
 -- Funcionários
 INSERT INTO funcionario (nome, cargo) VALUES
