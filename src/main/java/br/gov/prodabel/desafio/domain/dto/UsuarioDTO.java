@@ -1,5 +1,6 @@
 package br.gov.prodabel.desafio.domain.dto;
 
+import br.gov.prodabel.desafio.domain.entity.Bairro;
 import br.gov.prodabel.desafio.domain.entity.Usuario;
 import lombok.*;
 
@@ -14,7 +15,7 @@ public class UsuarioDTO {
     private Long id;
     private String nome;
     private String email;
-    private String bairro;
+    private Bairro bairro;
 
 
     public static UsuarioDTO of(Usuario usuario){

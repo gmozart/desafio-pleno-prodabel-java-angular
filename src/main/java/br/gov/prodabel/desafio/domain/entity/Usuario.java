@@ -27,8 +27,9 @@ public class Usuario  {
     @NotBlank(message = "Email não pode estar vazio")
     private String email;
 
-    @NotBlank(message = "Bairro não pode estar vazio")
-    private String bairro;
+    @ManyToOne
+    @JoinColumn(name = "bairro_id")
+    private Bairro bairro;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Solicitacao> solicitacoes;
