@@ -1,34 +1,27 @@
-version: '3.9'
-
-networks:
-  desafio-network:
-
+version: '3.8'
 services:
-
   postgres:
     image: postgres:15
-    container_name: desafio-postgres
+    container_name: postgres_desafio
     environment:
-      POSTGRES_DB: gestao_atendimentos
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gestao_atendimentos
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - desafio-network
+      - postgres_data:/var/lib/postgresql/data
 
   pgadmin:
-    image: dpage/pgadmin4:7
-    container_name: desafio-pgadmin
+    image: dpage/pgadmin4
+    container_name: pgadmin_desafio
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@desafio.com
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8080:80"
-    networks:
-      - desafio-network
+      - "8081:80"
+    depends_on:
+      - postgres
 
 volumes:
-  postgres-data:
+  postgres_data:
