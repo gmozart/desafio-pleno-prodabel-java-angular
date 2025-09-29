@@ -1,5 +1,6 @@
 package br.gov.prodabel.desafio.domain.dto;
 
+import br.gov.prodabel.desafio.domain.entity.Bairro;
 import br.gov.prodabel.desafio.domain.entity.Funcionario;
 import br.gov.prodabel.desafio.domain.entity.Solicitacao;
 import br.gov.prodabel.desafio.domain.entity.Usuario;
@@ -10,9 +11,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Getter
 @Setter
+@Builder
 public class SolicitacaoDTO {
 
     private Long id;
@@ -20,31 +21,30 @@ public class SolicitacaoDTO {
     private LocalDateTime dataCriacao;
     private Long usuarioId;
     private Long funcionarioId;
-    private String bairro;
+    private BairroDTO bairro; // Agora referenciando o DTO de Bairro
     private StatusSolicitacao status;
 
     public static SolicitacaoDTO of(Solicitacao solicitacao) {
         return SolicitacaoDTO.builder()
                 .id(solicitacao.getId())
                 .descricao(solicitacao.getDescricao())
-                .bairro(solicitacao.getBairro())
+                .bairro(BairroDTO.of(solicitacao.getBairro()))
                 .status(solicitacao.getStatus())
                 .dataCriacao(solicitacao.getDataCriacao())
-                .usuarioId(solicitacao.getUsuario().getId())
+                .usuarioId(solicitacao.getUsuario() != null ? solicitacao.getUsuario().getId() : null)
                 .funcionarioId(solicitacao.getFuncionario() != null ? solicitacao.getFuncionario().getId() : null)
                 .build();
     }
 
-    public static Solicitacao toEntity(SolicitacaoDTO dto, Usuario usuario, Funcionario funcionario) {
+    public static Solicitacao toEntity(SolicitacaoDTO dto, Usuario usuario, Funcionario funcionario, Bairro bairro) {
         return Solicitacao.builder()
                 .descricao(dto.getDescricao())
-                .bairro(dto.getBairro())
+                .bairro(bairro)
                 .status(dto.getStatus())
                 .dataCriacao(dto.getDataCriacao())
                 .usuario(usuario)
                 .funcionario(funcionario)
                 .build();
     }
-
-
 }
+

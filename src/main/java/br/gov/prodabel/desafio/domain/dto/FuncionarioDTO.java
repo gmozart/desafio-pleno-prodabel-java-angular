@@ -3,17 +3,18 @@ package br.gov.prodabel.desafio.domain.dto;
 import br.gov.prodabel.desafio.domain.entity.Funcionario;
 import lombok.*;
 
+import br.gov.prodabel.desafio.domain.enums.CargoFuncionario;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 public class FuncionarioDTO {
-
     private Long id;
     private String nome;
-    private String cargo;
-
-
+    private CargoFuncionario cargo;
 
     public static FuncionarioDTO of(Funcionario funcionario){
         return FuncionarioDTO.builder()
@@ -29,7 +30,5 @@ public class FuncionarioDTO {
                 .nome(funcionarioDTO.getNome())
                 .cargo(funcionarioDTO.getCargo())
                 .build();
-
     }
-
 }

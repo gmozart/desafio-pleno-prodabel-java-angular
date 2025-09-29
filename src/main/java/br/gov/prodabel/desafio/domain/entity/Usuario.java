@@ -1,6 +1,7 @@
 package br.gov.prodabel.desafio.domain.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.List;
@@ -20,8 +21,13 @@ public class Usuario  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nome não pode estar vazio")
     private String nome;
+
+    @NotBlank(message = "Email não pode estar vazio")
     private String email;
+
+    @NotBlank(message = "Bairro não pode estar vazio")
     private String bairro;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)

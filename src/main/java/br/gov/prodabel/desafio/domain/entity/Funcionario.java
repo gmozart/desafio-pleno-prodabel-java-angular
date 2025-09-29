@@ -1,6 +1,9 @@
 package br.gov.prodabel.desafio.domain.entity;
 
+import br.gov.prodabel.desafio.domain.enums.CargoFuncionario;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -19,8 +22,13 @@ public class Funcionario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Nome não pode estar vazio")
     private String nome;
-    private String cargo;
+
+    @Enumerated(EnumType.STRING)
+    @NotBlank(message = "Cargo não pode estar vazio")
+    private CargoFuncionario cargo;
 
     @OneToMany(mappedBy = "funcionario")
     private List<Solicitacao> solicitacoes;
