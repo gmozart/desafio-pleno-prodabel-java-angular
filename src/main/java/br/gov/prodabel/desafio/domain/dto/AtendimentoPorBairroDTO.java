@@ -1,18 +1,18 @@
 package br.gov.prodabel.desafio.domain.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
-public class AtendimentoPorBairroDTO{
-    private String bairro;
+public class AtendimentoPorBairroDTO {
+    private String cep;
+    private String nome;
     private Long quantidade;
 
-    public AtendimentoPorBairroDTO(String bairro, Long quantidade) {
-        this.bairro = bairro;
+    public AtendimentoPorBairroDTO() {}
+
+    public AtendimentoPorBairroDTO(String cep, String nome, Long quantidade) {
+        this.cep = cep;
+        this.nome = nome;
         this.quantidade = quantidade;
     }
-
-
 }

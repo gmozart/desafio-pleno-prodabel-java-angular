@@ -27,7 +27,7 @@ public class Funcionario {
     private String nome;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Cargo não pode estar vazio")
+    @NotNull(message = "Cargo não pode estar vazio")
     private CargoFuncionario cargo;
 
     @OneToMany(mappedBy = "funcionario")

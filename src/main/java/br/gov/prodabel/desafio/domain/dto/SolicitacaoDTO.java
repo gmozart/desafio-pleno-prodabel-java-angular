@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @Builder
 public class SolicitacaoDTO {
 
@@ -21,7 +19,7 @@ public class SolicitacaoDTO {
     private LocalDateTime dataCriacao;
     private Long usuarioId;
     private Long funcionarioId;
-    private BairroDTO bairro; // Agora referenciando o DTO de Bairro
+    private BairroDTO bairro;
     private StatusSolicitacao status;
 
     public static SolicitacaoDTO of(Solicitacao solicitacao) {
@@ -41,10 +39,11 @@ public class SolicitacaoDTO {
                 .descricao(dto.getDescricao())
                 .bairro(bairro)
                 .status(dto.getStatus())
-                .dataCriacao(dto.getDataCriacao())
+                .dataCriacao(dto.getDataCriacao() != null ? dto.getDataCriacao() : LocalDateTime.now())
                 .usuario(usuario)
                 .funcionario(funcionario)
                 .build();
     }
 }
+
 

@@ -1,8 +1,10 @@
 package br.gov.prodabel.desafio.domain.entity;
 
 import br.gov.prodabel.desafio.domain.enums.StatusSolicitacao;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -25,15 +27,16 @@ public class Solicitacao {
     private String descricao;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Status não pode estar vazio")
+    @Column(name = "status")
     private StatusSolicitacao status;
 
-    @ManyToOne
-    @JoinColumn(name = "bairro_id", nullable = false)
-    private Bairro bairro;
 
-    @NotBlank(message = "Data de criação não pode estar vazio")
+    @NotNull(message = "Data de criação não pode estar vazio")
     private LocalDateTime dataCriacao;
+
+    @ManyToOne
+    @JoinColumn(name = "bairro_id")
+    private Bairro bairro;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

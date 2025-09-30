@@ -2,8 +2,8 @@ package br.gov.prodabel.desafio.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +23,7 @@ public class Bairro {
     private String nome;
 
     @NotBlank
+    @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido. Formato esperado: 00000-000")
     private String cep;
 
     @NotBlank
@@ -31,9 +32,5 @@ public class Bairro {
     @NotBlank
     private String estado;
 
-    @OneToMany(mappedBy = "bairro")
-    private List<Usuario> usuarios;
 
-    @OneToMany(mappedBy = "bairro")
-    private List<Solicitacao> solicitacoes;
 }
