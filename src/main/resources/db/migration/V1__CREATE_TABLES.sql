@@ -1,10 +1,4 @@
 -- =========================================
--- Criação de enums
--- =========================================
-CREATE TYPE cargo_funcionario AS ENUM ('ATENDENTE', 'GERENTE', 'SUPORTE');
-CREATE TYPE status_solicitacao AS ENUM ('ABERTA', 'FINALIZADA');
-
--- =========================================
 -- Criação de tabelas
 -- =========================================
 
@@ -30,14 +24,14 @@ CREATE TABLE usuario (
 CREATE TABLE funcionario (
     id BIGSERIAL PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
-    cargo cargo_funcionario NOT NULL
+    cargo VARCHAR(50) NOT NULL
 );
 
 -- Tabela de solicitações
 CREATE TABLE solicitacao (
     id BIGSERIAL PRIMARY KEY,
     descricao TEXT NOT NULL,
-    status status_solicitacao NOT NULL,
+    status VARCHAR(50) NOT NULL,
     bairro_id BIGINT NOT NULL,
     data_criacao TIMESTAMP NOT NULL DEFAULT NOW(),
     usuario_id BIGINT NOT NULL,
