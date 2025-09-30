@@ -3,6 +3,7 @@ package br.gov.prodabel.desafio.controller;
 import br.gov.prodabel.desafio.domain.dto.AtendimentoPorBairroDTO;
 import br.gov.prodabel.desafio.domain.dto.SolicitacaoDTO;
 import br.gov.prodabel.desafio.service.SolicitacaoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,16 +12,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/solicitacoes")
+    @RequestMapping("/api/solicitacoes")
 @RequiredArgsConstructor
 public class SolicitacaoController {
 
     private final SolicitacaoService solicitacaoService;
 
     @PostMapping
-    public ResponseEntity<SolicitacaoDTO> criar(@RequestBody SolicitacaoDTO dto) {
-        SolicitacaoDTO criada = solicitacaoService.criar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criada);
+    public ResponseEntity<SolicitacaoDTO> criar(@RequestBody @Valid SolicitacaoDTO dto) {
+        SolicitacaoDTO criado = solicitacaoService.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(criado);
     }
 
     @GetMapping
@@ -47,7 +48,7 @@ public class SolicitacaoController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/api/metricas/atendimentos-por-bairro")
+    @GetMapping("/metricas/atendimentos-por-bairro")
     public List<AtendimentoPorBairroDTO> atendimentosPorBairro(
             @RequestParam(required = false) String cep
     ) {

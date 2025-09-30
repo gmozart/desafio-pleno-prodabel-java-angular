@@ -2,6 +2,7 @@ package br.gov.prodabel.desafio.service;
 
 import br.gov.prodabel.desafio.domain.dto.FuncionarioDTO;
 import br.gov.prodabel.desafio.domain.entity.Funcionario;
+import br.gov.prodabel.desafio.execption.ResourceNotFoundException;
 import br.gov.prodabel.desafio.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,12 +36,12 @@ public class FuncionarioService {
     public FuncionarioDTO buscarPorId(Long id) {
         return funcionarioRepository.findById(id)
                 .map(FuncionarioDTO::of)
-                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
     }
 
     public FuncionarioDTO atualizar(Long id, FuncionarioDTO dto) {
         Funcionario funcionario = funcionarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
 
         funcionario.setNome(dto.getNome());
         funcionario.setCargo(dto.getCargo());
@@ -50,6 +51,10 @@ public class FuncionarioService {
     }
 
     public void deletar(Long id) {
-        funcionarioRepository.deleteById(id);
+
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
+
+        funcionarioRepository.deleteById(funcionario.getId());
     }
 }

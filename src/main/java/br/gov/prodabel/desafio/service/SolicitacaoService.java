@@ -1,16 +1,19 @@
 package br.gov.prodabel.desafio.service;
 
 import br.gov.prodabel.desafio.domain.dto.AtendimentoPorBairroDTO;
+import br.gov.prodabel.desafio.domain.dto.BairroDTO;
 import br.gov.prodabel.desafio.domain.dto.SolicitacaoDTO;
 import br.gov.prodabel.desafio.domain.entity.Bairro;
 import br.gov.prodabel.desafio.domain.entity.Funcionario;
 import br.gov.prodabel.desafio.domain.entity.Solicitacao;
 import br.gov.prodabel.desafio.domain.entity.Usuario;
 import br.gov.prodabel.desafio.domain.enums.StatusSolicitacao;
+import br.gov.prodabel.desafio.execption.ResourceNotFoundException;
 import br.gov.prodabel.desafio.repository.BairroRepository;
 import br.gov.prodabel.desafio.repository.FuncionarioRepository;
 import br.gov.prodabel.desafio.repository.SolicitacaoRepository;
 import br.gov.prodabel.desafio.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,26 +30,42 @@ public class SolicitacaoService {
     private final BairroRepository bairroRepository;
 
 
+    @Transactional
     public SolicitacaoDTO criar(SolicitacaoDTO dto) {
+
         Usuario usuario = buscarUsuario(dto.getUsuarioId());
         Funcionario funcionario = buscarFuncionario(dto.getFuncionarioId());
-        Bairro bairro = buscarBairro(dto.getBairro().getCep());
+        Bairro bairro = buscarOuCriarBairro(dto.getBairro());
 
 
-        boolean existe = solicitacaoRepository.existsByUsuarioAndFuncionarioAndBairro(
-                usuario, funcionario, bairro);
+        checarDuplicidade(usuario, funcionario, bairro);
 
-        if (existe) {
-            throw new IllegalStateException("Já existe uma solicitação para este usuário, bairro e funcionário.");
-        }
 
         Solicitacao solicitacao = SolicitacaoDTO.toEntity(dto, usuario, funcionario, bairro);
-        solicitacao.setStatus(StatusSolicitacao.A);
+        solicitacao.setStatus(StatusSolicitacao.ABERTA);
 
-        Solicitacao salva = solicitacaoRepository.save(solicitacao);
-        return SolicitacaoDTO.of(salva);
+        return SolicitacaoDTO.of(solicitacaoRepository.save(solicitacao));
     }
 
+    @Transactional
+    public SolicitacaoDTO atualizar(Long id, SolicitacaoDTO dto) {
+        Solicitacao existente = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
+
+        Usuario usuario = buscarUsuario(dto.getUsuarioId());
+        Funcionario funcionario = buscarFuncionario(dto.getFuncionarioId());
+        Bairro bairro = buscarOuCriarBairro(dto.getBairro());
+
+        checarDuplicidade(usuario, funcionario, bairro, id);
+
+        existente.setDescricao(dto.getDescricao());
+        existente.setUsuario(usuario);
+        existente.setFuncionario(funcionario);
+        existente.setBairro(bairro);
+        existente.setStatus(dto.getStatus() != null ? dto.getStatus() : existente.getStatus());
+
+        return SolicitacaoDTO.of(solicitacaoRepository.save(existente));
+    }
 
 
     public List<SolicitacaoDTO> listarTodos() {
@@ -59,39 +78,7 @@ public class SolicitacaoService {
     public SolicitacaoDTO buscarPorId(Long id) {
         return solicitacaoRepository.findById(id)
                 .map(SolicitacaoDTO::of)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
-    }
-
-    public SolicitacaoDTO atualizar(Long id, SolicitacaoDTO dto) {
-        // Busca a solicitação pelo ID
-        Solicitacao solicitacao = solicitacaoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
-
-        // Atualiza a descrição
-        solicitacao.setDescricao(dto.getDescricao());
-
-        // Busca o bairro pelo CEP
-        Bairro bairro = buscarBairro(dto.getBairro().getCep());
-        solicitacao.setBairro(bairro);
-
-        // Atualiza o usuário, se necessário
-        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        solicitacao.setUsuario(usuario);
-
-        // Atualiza o funcionário, se fornecido
-        if (dto.getFuncionarioId() != null) {
-            Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId())
-                    .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
-            solicitacao.setFuncionario(funcionario);
-        } else {
-            solicitacao.setFuncionario(null);
-        }
-
-        // Salva as alterações
-        Solicitacao atualizada = solicitacaoRepository.save(solicitacao);
-
-        return SolicitacaoDTO.of(atualizada);
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
     }
 
 
@@ -105,19 +92,42 @@ public class SolicitacaoService {
 
     private Usuario buscarUsuario(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
     }
 
     private Funcionario buscarFuncionario(Long funcionarioId) {
         if (funcionarioId == null) return null;
         return funcionarioRepository.findById(funcionarioId)
-                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
     }
 
-    private Bairro buscarBairro(String cep){
-        if (cep == null) return null;
-        return bairroRepository.findByCep(cep)
-                .orElseThrow(() -> new RuntimeException("Bairro não encontrado"));
+    private Bairro buscarOuCriarBairro(BairroDTO dto) {
+        return bairroRepository.findByCep(dto.getCep())
+                .orElseGet(() -> bairroRepository.save(
+                        Bairro.builder()
+                                .cep(dto.getCep())
+                                .nome(dto.getNome())
+                                .cidade(dto.getCidade())
+                                .estado(dto.getEstado())
+                                .build()
+                ));
+    }
+
+
+
+    private void checarDuplicidade(Usuario usuario, Funcionario funcionario, Bairro bairro) {
+        if (solicitacaoRepository.existsByUsuarioAndFuncionarioAndBairro(usuario, funcionario, bairro)) {
+            throw new IllegalStateException("Já existe uma solicitação para este usuário, bairro e funcionário.");
+        }
+    }
+
+    private void checarDuplicidade(Usuario usuario, Funcionario funcionario, Bairro bairro, Long idAtual) {
+        solicitacaoRepository.findByUsuarioAndFuncionarioAndBairro(usuario, funcionario, bairro)
+                .ifPresent(solicitacao -> {
+                    if (!solicitacao.getId().equals(idAtual)) {
+                        throw new IllegalStateException("Já existe uma solicitação para este usuário, bairro e funcionário.");
+                    }
+                });
     }
 
 }
