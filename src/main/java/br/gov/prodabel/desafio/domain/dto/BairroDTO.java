@@ -15,7 +15,6 @@ import lombok.*;
 @Builder
 public class BairroDTO {
 
-    @JsonIgnore
     private Long id;
 
     @NotBlank(message = "O nome do bairro é obrigatório")
