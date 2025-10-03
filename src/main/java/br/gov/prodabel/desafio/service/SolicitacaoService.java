@@ -114,7 +114,6 @@ public class SolicitacaoService {
     }
 
 
-
     private void checarDuplicidade(Usuario usuario, Funcionario funcionario, Bairro bairro) {
         if (solicitacaoRepository.existsByUsuarioAndFuncionarioAndBairro(usuario, funcionario, bairro)) {
             throw new IllegalStateException("Já existe uma solicitação para este usuário, bairro e funcionário.");
