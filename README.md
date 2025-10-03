@@ -6,7 +6,11 @@
 ![Spring Boot](https://img.shields.io/badge/spring%20boot-3.5.6-brightgreen)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-15-blue)
 ![Swagger](https://img.shields.io/badge/swagger-documented-brightgreen)
-
+![Flyway](https://img.shields.io/badge/flyway-9.22.0-blue)
+![Lombok](https://img.shields.io/badge/lombok-1.18.30-red)
+![JUnit5](https://img.shields.io/badge/junit-5.11.3-blue)
+![H2 Database](https://img.shields.io/badge/h2-database-lightgrey)
+![JaCoCo](https://img.shields.io/badge/jacoco-0.8.12-yellowgreen)
 ---
 
 ## Descrição
@@ -32,61 +36,59 @@ Gerencia **Usuários**, **Solicitações** e **Funcionários**, permitindo CRUD 
 
 ## Estrutura do Projeto
 
+```
 desafio-pleno-java-angular/
 ├── backend/
-│ ├── src/
-│ │ ├── main/
-│ │ │ ├── java/
-│ │ │ │ └── br/gov/prodabel/desafio/
-│ │ │ │ ├── config/ # Configurações gerais do Spring Boot
-│ │ │ │ ├── controller/ # Controllers REST
-│ │ │ │ ├── domain/ # Entidades JPA (Models)
-│ │ │ │ ├── dto/ # Objetos de transferência de dados
-│ │ │ │ ├── exception/ # Tratamento de exceções personalizadas
-│ │ │ │ ├── repository/ # Repositórios JPA
-│ │ │ │ └── service/ # Lógica de negócio
-│ │ │ └── resources/
-│ │ │ ├── application.properties # Configurações do Spring Boot
-│ │ │ ├── db/
-│ │ │ │ └── migration/ # Scripts Flyway
-│ │ │ └── static/ # Recursos estáticos, se houver
-│ │ └── test/
-│ │ └── java/
-│ │ └── br/gov/prodabel/desafio/ # Testes unitários e de integração
-│ └── pom.xml
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── br/gov/prodabel/desafio/
+│   │   │   │       ├── config/        # Configurações gerais do Spring Boot
+│   │   │   │       ├── controller/    # Controllers REST
+│   │   │   │       ├── domain/        # Entidades JPA (Models)
+│   │   │   │       ├── dto/           # Objetos de transferência de dados
+│   │   │   │       ├── exception/     # Tratamento de exceções personalizadas
+│   │   │   │       ├── repository/    # Repositórios JPA
+│   │   │   │       └── service/       # Lógica de negócio
+│   │   │   └── resources/
+│   │   │       ├── application.properties   # Configurações do Spring Boot
+│   │   │       ├── db/
+│   │   │       │   └── migration/     # Scripts Flyway
+│   │   │       └── static/            # Recursos estáticos, se houver
+│   │   └── test/
+│   │       └── java/br/gov/prodabel/desafio/  # Testes unitários e de integração
+│   └── pom.xml
 ├── frontend/
-│ ├── src/
-│ │ ├── app/
-│ │ │ ├── components/ # Componentes Angular
-│ │ │ ├── services/ # Serviços Angular (HTTP)
-│ │ │ ├── models/ # Models/Interfaces TS
-│ │ │ └── pages/ # Páginas da aplicação
-│ │ ├── assets/ # Recursos (imagens, CSS, etc.)
-│ │ └── environments/ # Configurações por ambiente
-│ ├── angular.json
-│ ├── package.json
-│ └── tsconfig.json
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/    # Componentes Angular
+│   │   │   ├── services/      # Serviços Angular (HTTP)
+│   │   │   ├── models/        # Models/Interfaces TypeScript
+│   │   │   └── pages/         # Páginas da aplicação
+│   │   ├── assets/            # Recursos (imagens, CSS, etc.)
+│   │   └── environments/      # Configurações por ambiente
+│   ├── angular.json
+│   ├── package.json
+│   └── tsconfig.json
 ├── README.md
 └── .gitignore
 
-
-
----
+```
 
 ## Configuração do Banco de Dados 🐳 Docker
 
 Arquivo `docker-compose.yml`:
 
 ```yaml
-version: "3.8"
 services:
   postgres:
     image: postgres:15
     container_name: desafio-postgres
+    restart: always
     environment:
-      POSTGRES_DB: gestao_atendimentos
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gestao_atendimentos
     ports:
       - "5432:5432"
     volumes:
@@ -107,16 +109,22 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/gestao_atendimentos
 spring.datasource.username=postgres
 spring.datasource.password=postgres
 spring.datasource.driver-class-name=org.postgresql.Driver
-
+        
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.ddl-auto=none
 
 spring.flyway.enabled=true
 spring.flyway.locations=classpath:db/migration
 spring.flyway.baseline-on-migrate=true
+spring.jpa.hibernate.ddl-auto=none
 ```
+## Testes
+
+Foram implementados testes ``` unitários ``` para validar a lógica de negócio do backend.
+
+Foram implementados testes de ``` integração ``` para garantir que os endpoints REST funcionam corretamente com o banco de dados H2 em memória durante os testes.
+
 ## SWAGGER UI
 
 http://localhost:8080/swagger-ui/index.html#/
