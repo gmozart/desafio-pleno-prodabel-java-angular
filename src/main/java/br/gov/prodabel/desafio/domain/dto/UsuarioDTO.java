@@ -15,7 +15,6 @@ import lombok.*;
 @Setter
 public class UsuarioDTO {
 
-    @JsonIgnore
     private Long id;
 
     private String nome;
