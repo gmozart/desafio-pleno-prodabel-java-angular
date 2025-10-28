@@ -26,6 +26,12 @@ public class Funcionario {
     @NotBlank(message = "Nome não pode estar vazio")
     private String nome;
 
+    @NotBlank(message = "Email não pode estar vazio")
+    private String email;
+
+    @NotBlank(message = "Senha não pode estar vazia")
+    private String senha;
+
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Cargo não pode estar vazio")
     private CargoFuncionario cargo;

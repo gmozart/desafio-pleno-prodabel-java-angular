@@ -28,6 +28,9 @@ public class Usuario  {
     @NotBlank(message = "Email não pode estar vazio")
     private String email;
 
+    @NotBlank(message = "Senha não pode estar vazia")
+    private String senha;
+
     @ManyToOne
     @JoinColumn(name = "bairro_id")
     @JsonBackReference

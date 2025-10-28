@@ -68,15 +68,17 @@ public class SolicitacaoService {
     }
 
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<SolicitacaoDTO> listarTodos() {
-        return solicitacaoRepository.findAll()
+        return solicitacaoRepository.findAllWithRelations() // ✅ USAR MÉTODO COM FETCH
                 .stream()
                 .map(SolicitacaoDTO::of)
                 .collect(Collectors.toList());
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public SolicitacaoDTO buscarPorId(Long id) {
-        return solicitacaoRepository.findById(id)
+        return solicitacaoRepository.findByIdWithRelations(id) // ✅ USAR MÉTODO COM FETCH
                 .map(SolicitacaoDTO::of)
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada"));
     }

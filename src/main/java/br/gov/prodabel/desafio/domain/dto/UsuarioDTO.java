@@ -4,7 +4,9 @@ import br.gov.prodabel.desafio.domain.entity.Bairro;
 import br.gov.prodabel.desafio.domain.entity.Usuario;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Data
@@ -17,12 +19,20 @@ public class UsuarioDTO {
 
     private Long id;
 
+    @NotBlank(message = "Nome é obrigatório")
+    @Schema(description = "Nome do usuário", example = "João Silva")
     private String nome;
 
-    @Schema(description = "Email do usuário", example = "exemplo@email.com")
+    @NotBlank(message = "Email é obrigatório")
     @Email(message = "O email deve ser válido")
+    @Schema(description = "Email do usuário", example = "exemplo@email.com")
     private String email;
 
+    @Schema(description = "Senha do usuário (mínimo 8 caracteres)")
+    private String senha;
+
+    @Valid
+    @Schema(description = "Bairro do usuário (obrigatório)")
     private BairroDTO bairro;
 
 
