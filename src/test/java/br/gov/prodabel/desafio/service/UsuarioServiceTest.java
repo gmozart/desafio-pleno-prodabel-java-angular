@@ -6,9 +6,12 @@ import br.gov.prodabel.desafio.domain.entity.Bairro;
 import br.gov.prodabel.desafio.domain.entity.Usuario;
 import br.gov.prodabel.desafio.execption.ResourceNotFoundException;
 import br.gov.prodabel.desafio.repository.BairroRepository;
+import br.gov.prodabel.desafio.repository.FuncionarioRepository;
 import br.gov.prodabel.desafio.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.Optional;
 import java.util.List;
 
@@ -21,11 +24,14 @@ class UsuarioServiceTest {
     private BairroRepository bairroRepository;
     private UsuarioService usuarioService;
 
+
     @BeforeEach
     void setUp() {
         usuarioRepository = mock(UsuarioRepository.class);
         bairroRepository = mock(BairroRepository.class);
-        usuarioService = new UsuarioService(usuarioRepository, bairroRepository);
+        PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+        FuncionarioRepository funcionarioRepository = mock(FuncionarioRepository.class);
+        usuarioService = new UsuarioService(usuarioRepository, bairroRepository, passwordEncoder, funcionarioRepository);
     }
 
     @Test

@@ -7,8 +7,11 @@ import br.gov.prodabel.desafio.domain.entity.Funcionario;
 import br.gov.prodabel.desafio.domain.enums.CargoFuncionario;
 import br.gov.prodabel.desafio.execption.ResourceNotFoundException;
 import br.gov.prodabel.desafio.repository.FuncionarioRepository;
+import br.gov.prodabel.desafio.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -16,13 +19,18 @@ import static org.mockito.Mockito.*;
 
 class FuncionarioServiceTest {
 
+
     private FuncionarioRepository funcionarioRepository;
+    private PasswordEncoder passwordEncoder;
+    private UsuarioRepository usuarioRepository;
     private FuncionarioService funcionarioService;
 
     @BeforeEach
     void setUp() {
         funcionarioRepository = mock(FuncionarioRepository.class);
-        funcionarioService = new FuncionarioService(funcionarioRepository);
+        passwordEncoder = mock(PasswordEncoder.class);
+        usuarioRepository = mock(UsuarioRepository.class);
+        funcionarioService = new FuncionarioService(funcionarioRepository, passwordEncoder, usuarioRepository);
     }
 
     @Test
