@@ -1,8 +1,18 @@
 package br.gov.prodabel.desafio.controller;
 
-import br.gov.prodabel.desafio.domain.dto.FuncionarioDTO;
+import br.gov.prodabel.desafio.domain.dto.BairroDTO;
+import br.gov.prodabel.desafio.domain.dto.SolicitacaoDTO;
+import br.gov.prodabel.desafio.domain.entity.Bairro;
+import br.gov.prodabel.desafio.domain.entity.Funcionario;
+import br.gov.prodabel.desafio.domain.entity.Usuario;
 import br.gov.prodabel.desafio.domain.enums.CargoFuncionario;
+import br.gov.prodabel.desafio.domain.enums.StatusSolicitacao;
+import br.gov.prodabel.desafio.repository.BairroRepository;
+import br.gov.prodabel.desafio.repository.FuncionarioRepository;
+import br.gov.prodabel.desafio.repository.SolicitacaoRepository;
+import br.gov.prodabel.desafio.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,13 +21,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class FuncionarioIntegrationTest {
+class SolicitacaoIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -25,84 +37,181 @@ class FuncionarioIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    void deveCriarFuncionario() throws Exception {
-        FuncionarioDTO dto = new FuncionarioDTO();
-        dto.setNome("João");
-        dto.setCargo(CargoFuncionario.ATENDENTE);
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-        mockMvc.perform(post("/api/funcionarios")
+    @Autowired
+    private BairroRepository bairroRepository;
+
+    @Autowired
+    private FuncionarioRepository funcionarioRepository;
+
+    @Autowired
+    private SolicitacaoRepository solicitacaoRepository;
+
+    @BeforeEach
+    void limparBanco() {
+        solicitacaoRepository.deleteAll();
+        usuarioRepository.deleteAll();
+        funcionarioRepository.deleteAll();
+        bairroRepository.deleteAll();
+    }
+
+    private Bairro salvarBairro() {
+        return bairroRepository.save(
+                Bairro.builder()
+                        .nome("Bairro Teste")
+                        .cidade("Cidade T")
+                        .estado("SP")
+                        .cep("00000-000")
+                        .build()
+        );
+    }
+
+    private Usuario salvarUsuario(Bairro bairro) {
+        String emailUnico = "teste.usuario." + System.currentTimeMillis() + "@example.com";
+        return usuarioRepository.save(
+                Usuario.builder()
+                        .nome("Usuário Teste")
+                        .email(emailUnico)
+                        .bairro(bairro)
+                        .senha("senhaTest123")
+                        .build()
+        );
+    }
+
+    private Funcionario salvarFuncionario() {
+        String emailUnico = "funcionario." + System.currentTimeMillis() + "@example.com";
+        return funcionarioRepository.save(
+                Funcionario.builder()
+                        .nome("Funcionario Teste")
+                        .cargo(CargoFuncionario.GERENTE)
+                        .email(emailUnico)
+                        .senha("senhaFunc123")
+                        .build()
+        );
+    }
+
+    private SolicitacaoDTO criarSolicitacaoDTO(String descricao, Usuario usuario, Funcionario funcionario, Bairro bairro) {
+        return SolicitacaoDTO.builder()
+                .descricao(descricao)
+                .bairro(BairroDTO.builder()
+                        .id(bairro.getId())
+                        .nome(bairro.getNome())
+                        .cidade(bairro.getCidade())
+                        .estado(bairro.getEstado())
+                        .cep(bairro.getCep())
+                        .build())
+                .status(StatusSolicitacao.ABERTA)
+                .usuarioId(usuario.getId())
+                .funcionarioId(funcionario.getId())
+                .dataCriacao(LocalDateTime.now())
+                .build();
+    }
+
+    @Test
+    void deveCriarSolicitacao() throws Exception {
+        Bairro bairro = salvarBairro();
+        Usuario usuario = salvarUsuario(bairro);
+        Funcionario funcionario = salvarFuncionario();
+
+        SolicitacaoDTO dto = criarSolicitacaoDTO("Teste criação", usuario, funcionario, bairro);
+
+        mockMvc.perform(post("/api/solicitacoes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.nome").value("João"))
-                .andExpect(jsonPath("$.cargo").value("ATENDENTE"));
+                .andExpect(jsonPath("$.descricao").value("Teste criação"))
+                .andExpect(jsonPath("$.bairro.nome").value("Bairro Teste"))
+                .andExpect(jsonPath("$.status").value("ABERTA"));
     }
 
     @Test
-    void deveListarTodosFuncionarios() throws Exception {
-        mockMvc.perform(get("/api/funcionarios"))
+    void deveListarTodasSolicitacoes() throws Exception {
+        Bairro bairro = salvarBairro();
+        Usuario usuario = salvarUsuario(bairro);
+        Funcionario funcionario = salvarFuncionario();
+
+        SolicitacaoDTO dto = criarSolicitacaoDTO("Teste listagem", usuario, funcionario, bairro);
+        mockMvc.perform(post("/api/solicitacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/solicitacoes"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray());
     }
 
     @Test
-    void deveBuscarFuncionarioPorId() throws Exception {
-        // Cria um funcionário primeiro
-        FuncionarioDTO dto = new FuncionarioDTO();
-        dto.setNome("Maria");
-        dto.setCargo(CargoFuncionario.GERENTE);
+    void deveBuscarSolicitacaoPorId() throws Exception {
+        Bairro bairro = salvarBairro();
+        Usuario usuario = salvarUsuario(bairro);
+        Funcionario funcionario = salvarFuncionario();
 
-        String json = mockMvc.perform(post("/api/funcionarios")
+        SolicitacaoDTO dto = criarSolicitacaoDTO("Teste busca", usuario, funcionario, bairro);
+        String json = mockMvc.perform(post("/api/solicitacoes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        FuncionarioDTO criado = objectMapper.readValue(json, FuncionarioDTO.class);
+        SolicitacaoDTO criado = objectMapper.readValue(json, SolicitacaoDTO.class);
 
-        mockMvc.perform(get("/api/funcionarios/{id}", criado.getId()))
+        mockMvc.perform(get("/api/solicitacoes/{id}", criado.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nome").value("Maria"));
+                .andExpect(jsonPath("$.descricao").value("Teste busca"))
+                .andExpect(jsonPath("$.bairro.nome").value("Bairro Teste"));
     }
 
     @Test
-    void deveAtualizarFuncionario() throws Exception {
-        FuncionarioDTO dto = new FuncionarioDTO();
-        dto.setNome("Carlos");
-        dto.setCargo(CargoFuncionario.SUPORTE);
+    void deveAtualizarSolicitacao() throws Exception {
+        Bairro bairro = salvarBairro();
+        Usuario usuario = salvarUsuario(bairro);
+        Funcionario funcionario = salvarFuncionario();
 
-        String json = mockMvc.perform(post("/api/funcionarios")
+        SolicitacaoDTO dto = criarSolicitacaoDTO("Teste atualização", usuario, funcionario, bairro);
+        String json = mockMvc.perform(post("/api/solicitacoes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        FuncionarioDTO criado = objectMapper.readValue(json, FuncionarioDTO.class);
-        criado.setNome("Carlos Atualizado");
+        SolicitacaoDTO criado = objectMapper.readValue(json, SolicitacaoDTO.class);
+        criado.setDescricao("Atualizado");
 
-        mockMvc.perform(put("/api/funcionarios/{id}", criado.getId())
+        mockMvc.perform(put("/api/solicitacoes/{id}", criado.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(criado)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nome").value("Carlos Atualizado"));
+                .andExpect(jsonPath("$.descricao").value("Atualizado"));
     }
 
     @Test
-    void deveDeletarFuncionario() throws Exception {
-        FuncionarioDTO dto = new FuncionarioDTO();
-        dto.setNome("Ana");
-        dto.setCargo(CargoFuncionario.ATENDENTE);
+    void deveDeletarSolicitacao() throws Exception {
+        Bairro bairro = salvarBairro();
+        Usuario usuario = salvarUsuario(bairro);
+        Funcionario funcionario = salvarFuncionario();
 
-        String json = mockMvc.perform(post("/api/funcionarios")
+        SolicitacaoDTO dto = criarSolicitacaoDTO("Teste exclusão", usuario, funcionario, bairro);
+        String json = mockMvc.perform(post("/api/solicitacoes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        FuncionarioDTO criado = objectMapper.readValue(json, FuncionarioDTO.class);
+        SolicitacaoDTO criado = objectMapper.readValue(json, SolicitacaoDTO.class);
 
-        mockMvc.perform(delete("/api/funcionarios/{id}", criado.getId()))
+        mockMvc.perform(delete("/api/solicitacoes/{id}", criado.getId()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deveObterAtendimentosPorBairro() throws Exception {
+        mockMvc.perform(get("/api/solicitacoes/metricas/atendimentos-por-bairro")
+                        .param("cep", "00000-000"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 }

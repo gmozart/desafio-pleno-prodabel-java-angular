@@ -33,7 +33,6 @@ class UsuarioIntegrationTest {
     void deveCriarUsuario() throws Exception {
 
         BairroDTO bairro = new BairroDTO();
-        bairro.setId(10L);
         bairro.setNome("Cac");
         bairro.setCidade("Belo Horizonte");
         bairro.setEstado("MG");
@@ -42,6 +41,7 @@ class UsuarioIntegrationTest {
         UsuarioDTO dto = new UsuarioDTO();
         dto.setNome("João Usuário");
         dto.setEmail(gerarEmailUnico());
+        dto.setSenha("senhaTest123");
         dto.setBairro(bairro);
 
         mockMvc.perform(post("/api/usuarios")
@@ -63,7 +63,6 @@ class UsuarioIntegrationTest {
     void deveBuscarUsuarioPorId() throws Exception {
 
         BairroDTO bairro = new BairroDTO();
-        bairro.setId(20L);
         bairro.setNome("Cacajau");
         bairro.setCidade("Belo Horizonte");
         bairro.setEstado("MG");
@@ -72,6 +71,7 @@ class UsuarioIntegrationTest {
         UsuarioDTO dto = new UsuarioDTO();
         dto.setNome("Maria Usuária");
         dto.setEmail(gerarEmailUnico());
+        dto.setSenha("senhaTest123");
         dto.setBairro(bairro);
 
 
@@ -94,7 +94,7 @@ class UsuarioIntegrationTest {
     void deveAtualizarUsuario() throws Exception {
 
         BairroDTO bairro = new BairroDTO();
-        bairro.setId(30L);
+
         bairro.setNome("CPX");
         bairro.setCidade("Belo Horizonte");
         bairro.setEstado("MG");
@@ -103,6 +103,7 @@ class UsuarioIntegrationTest {
         UsuarioDTO dto = new UsuarioDTO();
         dto.setNome("Carlos Usuário");
         dto.setEmail(gerarEmailUnico());
+        dto.setSenha("senhaTest123");
         dto.setBairro(bairro);
 
 
@@ -127,7 +128,7 @@ class UsuarioIntegrationTest {
     @Test
     void deveDeletarUsuario() throws Exception {
         BairroDTO bairro = new BairroDTO();
-        bairro.setId(40L);
+
         bairro.setNome("CTX");
         bairro.setCidade("Belo Horizonte");
         bairro.setEstado("MG");
@@ -136,6 +137,7 @@ class UsuarioIntegrationTest {
         UsuarioDTO dto = new UsuarioDTO();
         dto.setNome("Felipe Usuário");
         dto.setEmail(gerarEmailUnico());
+        dto.setSenha("senhaTest123");
         dto.setBairro(bairro);
 
 

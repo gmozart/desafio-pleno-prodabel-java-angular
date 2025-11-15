@@ -22,7 +22,6 @@ public class AuthService {
     private final JwtService jwtService;
 
     public AuthResponseDTO login(LoginRequestDTO request) {
-        // Tenta encontrar usuário
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
 
         if (usuario != null && passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
@@ -40,7 +39,6 @@ public class AuthService {
                     .build();
         }
 
-        // Tenta encontrar funcionário
         Funcionario funcionario = funcionarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
 
@@ -60,4 +58,3 @@ public class AuthService {
                 .build();
     }
 }
-

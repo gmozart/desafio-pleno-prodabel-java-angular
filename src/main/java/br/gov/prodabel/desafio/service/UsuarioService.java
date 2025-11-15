@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,33 +24,27 @@ public class UsuarioService {
     private final FuncionarioRepository funcionarioRepository;
 
     public UsuarioDTO criar(UsuarioDTO dto) {
-        // Validar se email já existe em Usuários
         usuarioRepository.findByEmail(dto.getEmail()).ifPresent(u -> {
             throw new IllegalArgumentException("Email já cadastrado no sistema");
         });
 
-        // ✅ Validar se email já existe em Funcionários
         funcionarioRepository.findByEmail(dto.getEmail()).ifPresent(f -> {
             throw new IllegalArgumentException("Email já cadastrado no sistema");
         });
 
-        // Validar se o bairro foi informado
         if (dto.getBairro() == null) {
             throw new IllegalArgumentException("Bairro é obrigatório");
         }
 
         Bairro bairro = null;
 
-        // Se o ID do bairro foi informado, busca pelo ID
         if (dto.getBairro().getId() != null) {
             bairro = bairroRepository.findById(dto.getBairro().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Bairro não encontrado com id: " + dto.getBairro().getId()));
         }
-        // Se não tem ID mas tem CEP, busca ou cria pelo CEP
         else if (dto.getBairro().getCep() != null) {
             bairro = bairroRepository.findByCep(dto.getBairro().getCep())
                     .orElseGet(() -> {
-                        // Criar novo bairro
                         Bairro novoBairro = Bairro.builder()
                                 .nome(dto.getBairro().getNome())
                                 .cep(dto.getBairro().getCep())
@@ -67,7 +60,7 @@ public class UsuarioService {
         Usuario usuario = Usuario.builder()
                 .nome(dto.getNome())
                 .email(dto.getEmail())
-                .senha(passwordEncoder.encode(dto.getSenha())) // ⚠️ Criptografa a senha
+                .senha(passwordEncoder.encode(dto.getSenha()))
                 .bairro(bairro)
                 .build();
 
@@ -93,7 +86,6 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-        // Validar se email já existe em outro usuário
         if (!usuario.getEmail().equals(dto.getEmail())) {
             usuarioRepository.findByEmail(dto.getEmail()).ifPresent(u -> {
                 if (!u.getId().equals(id)) {
@@ -101,29 +93,24 @@ public class UsuarioService {
                 }
             });
 
-            // ✅ Validar se email já existe em Funcionários
             funcionarioRepository.findByEmail(dto.getEmail()).ifPresent(f -> {
                 throw new IllegalArgumentException("Email já cadastrado no sistema");
             });
         }
 
-        // Validar se o bairro foi informado
         if (dto.getBairro() == null) {
             throw new IllegalArgumentException("Bairro é obrigatório");
         }
 
         Bairro bairro = null;
 
-        // Se o ID do bairro foi informado, busca pelo ID
         if (dto.getBairro().getId() != null) {
             bairro = bairroRepository.findById(dto.getBairro().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Bairro não encontrado com id: " + dto.getBairro().getId()));
         }
-        // Se não tem ID mas tem CEP, busca ou cria pelo CEP
         else if (dto.getBairro().getCep() != null) {
             bairro = bairroRepository.findByCep(dto.getBairro().getCep())
                     .orElseGet(() -> {
-                        // Criar novo bairro
                         Bairro novoBairro = Bairro.builder()
                                 .nome(dto.getBairro().getNome())
                                 .cep(dto.getBairro().getCep())
@@ -139,7 +126,7 @@ public class UsuarioService {
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
         if (dto.getSenha() != null && !dto.getSenha().isEmpty()) {
-            usuario.setSenha(passwordEncoder.encode(dto.getSenha())); // ⚠️ Criptografa a senha
+            usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
         }
         usuario.setBairro(bairro);
 

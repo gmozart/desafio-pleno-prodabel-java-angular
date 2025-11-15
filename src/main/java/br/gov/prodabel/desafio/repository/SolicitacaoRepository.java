@@ -16,7 +16,6 @@ import java.util.Optional;
 @Repository
 public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> {
 
-    // ✅ ADICIONAR: Carregar todas as solicitações com relacionamentos
     @Query("SELECT DISTINCT s FROM Solicitacao s " +
            "LEFT JOIN FETCH s.usuario u " +
            "LEFT JOIN FETCH u.bairro " +
@@ -24,7 +23,6 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
            "LEFT JOIN FETCH s.bairro b")
     List<Solicitacao> findAllWithRelations();
 
-    // ✅ ADICIONAR: Buscar uma solicitação com todos os relacionamentos
     @Query("SELECT s FROM Solicitacao s " +
            "LEFT JOIN FETCH s.usuario u " +
            "LEFT JOIN FETCH u.bairro " +

@@ -21,12 +21,10 @@ public class FuncionarioService {
     private final UsuarioRepository usuarioRepository;
 
     public FuncionarioDTO criar(FuncionarioDTO dto) {
-        // Validar se email já existe em Funcionários
         funcionarioRepository.findByEmail(dto.getEmail()).ifPresent(f -> {
             throw new IllegalArgumentException("Email já cadastrado no sistema");
         });
 
-        // ✅ Validar se email já existe em Usuários
         usuarioRepository.findByEmail(dto.getEmail()).ifPresent(u -> {
             throw new IllegalArgumentException("Email já cadastrado no sistema");
         });
@@ -34,7 +32,7 @@ public class FuncionarioService {
         Funcionario funcionario = Funcionario.builder()
                 .nome(dto.getNome())
                 .email(dto.getEmail())
-                .senha(passwordEncoder.encode(dto.getSenha())) // ✅ Criptografa a senha
+                .senha(passwordEncoder.encode(dto.getSenha()))
                 .cargo(dto.getCargo())
                 .build();
 
@@ -59,7 +57,6 @@ public class FuncionarioService {
         Funcionario funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
 
-        // Validar se email já existe em outro funcionário
         if (!funcionario.getEmail().equals(dto.getEmail())) {
             funcionarioRepository.findByEmail(dto.getEmail()).ifPresent(f -> {
                 if (!f.getId().equals(id)) {
@@ -67,7 +64,6 @@ public class FuncionarioService {
                 }
             });
 
-            // ✅ Validar se email já existe em Usuários
             usuarioRepository.findByEmail(dto.getEmail()).ifPresent(u -> {
                 throw new IllegalArgumentException("Email já cadastrado no sistema");
             });
@@ -77,7 +73,6 @@ public class FuncionarioService {
         funcionario.setEmail(dto.getEmail());
         funcionario.setCargo(dto.getCargo());
 
-        // Atualiza senha apenas se fornecida
         if (dto.getSenha() != null && !dto.getSenha().isEmpty()) {
             funcionario.setSenha(passwordEncoder.encode(dto.getSenha()));
         }

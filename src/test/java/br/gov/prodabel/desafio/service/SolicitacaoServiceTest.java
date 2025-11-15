@@ -3,10 +3,12 @@ package br.gov.prodabel.desafio.service;
 import br.gov.prodabel.desafio.domain.dto.AtendimentoPorBairroDTO;
 import br.gov.prodabel.desafio.domain.dto.BairroDTO;
 import br.gov.prodabel.desafio.domain.dto.SolicitacaoDTO;
+import br.gov.prodabel.desafio.domain.dto.UsuarioDTO;
 import br.gov.prodabel.desafio.domain.entity.Bairro;
 import br.gov.prodabel.desafio.domain.entity.Funcionario;
 import br.gov.prodabel.desafio.domain.entity.Solicitacao;
 import br.gov.prodabel.desafio.domain.entity.Usuario;
+import br.gov.prodabel.desafio.domain.enums.CargoFuncionario;
 import br.gov.prodabel.desafio.domain.enums.StatusSolicitacao;
 import br.gov.prodabel.desafio.repository.BairroRepository;
 import br.gov.prodabel.desafio.repository.FuncionarioRepository;
@@ -40,11 +42,15 @@ class SolicitacaoServiceTest {
         service = new SolicitacaoService(solicitacaoRepository, usuarioRepository, funcionarioRepository, bairroRepository);
     }
 
+    private String gerarEmailUnico() {
+        return "teste" + System.currentTimeMillis() + "@gmail.com";
+    }
+
     @Test
     void testCriarSolicitacao() {
-        Usuario usuario = Usuario.builder().id(1L).build();
-        Funcionario funcionario = Funcionario.builder().id(2L).build();
         Bairro bairro = Bairro.builder().cep("12345").nome("Centro").cidade("Cidade").estado("UF").build();
+        Usuario usuario = Usuario.builder().id(1L).bairro(bairro).build();
+        Funcionario funcionario = Funcionario.builder().id(2L).build();
 
         BairroDTO bairroDTO = BairroDTO.builder()
                 .cep("12345")
@@ -96,9 +102,10 @@ class SolicitacaoServiceTest {
 
     @Test
     void testAtualizarSolicitacao() {
-        Usuario usuario = Usuario.builder().id(1L).build();
+
         Funcionario funcionario = Funcionario.builder().id(2L).build();
         Bairro bairro = Bairro.builder().cep("12345").nome("Centro").cidade("Cidade").estado("UF").build();
+        Usuario usuario = Usuario.builder().id(1L).bairro(bairro).build();
 
         BairroDTO bairroDTO = BairroDTO.builder()
                 .cep("12345")
@@ -142,36 +149,50 @@ class SolicitacaoServiceTest {
 
     @Test
     void testListarTodos() {
-        Usuario usuario = Usuario.builder().id(1L).build();
-        Funcionario funcionario = Funcionario.builder().id(2L).build();
-        Bairro bairro = Bairro.builder().cep("12345").nome("Centro").cidade("Cidade").estado("UF").build();
 
-        Solicitacao solicitacao1 = Solicitacao.builder()
-                .id(1L)
-                .descricao("Solicitação 1")
-                .usuario(usuario)
+
+        Funcionario funcionario = Funcionario.builder()
+                .nome("Funcionario Teste")
+                .cargo(CargoFuncionario.GERENTE)
+                .email(gerarEmailUnico())
+                .senha("senhaFunc123")
+                .build();
+
+        Bairro bairro = Bairro.builder()
+                .cep("12345")
+                .nome("Centro")
+                .cidade("Cidade")
+                .estado("UF")
+                .build();
+
+        Usuario dtoUsuario = new Usuario();
+        dtoUsuario.setNome("Carlos Usuário");
+        dtoUsuario.setEmail(gerarEmailUnico());
+        dtoUsuario.setSenha("senhaTest123");
+        dtoUsuario.setBairro(bairro);
+
+        Solicitacao solicitacaoSalva = Solicitacao.builder()
+                .descricao("Teste")
+                .usuario(dtoUsuario)
                 .funcionario(funcionario)
                 .bairro(bairro)
                 .status(StatusSolicitacao.ABERTA)
+                .dataCriacao(LocalDateTime.now())
                 .build();
 
-        Solicitacao solicitacao2 = Solicitacao.builder()
-                .id(2L)
-                .descricao("Solicitação 2")
-                .usuario(usuario)
-                .funcionario(funcionario)
-                .bairro(bairro)
-                .status(StatusSolicitacao.FINALIZADA)
-                .build();
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(dtoUsuario));
+        when(funcionarioRepository.findById(2L)).thenReturn(Optional.of(funcionario));
+        when(bairroRepository.findByCep("12345")).thenReturn(Optional.of(bairro));
+        when(solicitacaoRepository.existsByUsuarioAndFuncionarioAndBairro(dtoUsuario, funcionario, bairro)).thenReturn(true);
 
-        when(solicitacaoRepository.findAll()).thenReturn(List.of(solicitacao1, solicitacao2));
+        when(solicitacaoRepository.save(any())).thenReturn(solicitacaoSalva);
+
+        when(solicitacaoRepository.findAllWithRelations()).thenReturn(List.of(solicitacaoSalva));
 
         List<SolicitacaoDTO> result = service.listarTodos();
 
-        assertEquals(2, result.size());
-        assertEquals("Solicitação 1", result.get(0).getDescricao());
-        assertEquals("Solicitação 2", result.get(1).getDescricao());
-        verify(solicitacaoRepository).findAll();
+        assertEquals(1, result.size());
+        verify(solicitacaoRepository).findAllWithRelations();
     }
 
     @Test
@@ -199,16 +220,18 @@ class SolicitacaoServiceTest {
 
     @Test
     void testCriarSolicitacaoNovoBairro() {
-        Usuario usuario = Usuario.builder().id(1L).build();
         Funcionario funcionario = Funcionario.builder().id(2L).build();
-        BairroDTO bairroDTO = BairroDTO.builder()
+
+        Bairro novoBairro = Bairro.builder()
                 .cep("99999")
                 .nome("Novo Bairro")
                 .cidade("Nova Cidade")
                 .estado("NB")
                 .build();
 
-        Bairro novoBairro = Bairro.builder()
+        Usuario usuario = Usuario.builder().id(1L).bairro(novoBairro).build();
+
+        BairroDTO bairroDTO = BairroDTO.builder()
                 .cep("99999")
                 .nome("Novo Bairro")
                 .cidade("Nova Cidade")

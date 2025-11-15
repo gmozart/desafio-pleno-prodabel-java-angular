@@ -49,8 +49,12 @@ class SolicitacaoControllerIntegrationTest {
     @Autowired
     private FuncionarioRepository funcionarioRepository;
 
+    @Autowired
+    private SolicitacaoRepository solicitacaoRepository;
+
     @BeforeEach
     void limparBanco() {
+        solicitacaoRepository.deleteAll();
         usuarioRepository.deleteAll();
         funcionarioRepository.deleteAll();
         bairroRepository.deleteAll();
@@ -77,6 +81,7 @@ class SolicitacaoControllerIntegrationTest {
                         .nome("Usuário Teste")
                         .email(emailUnico)
                         .bairro(bairro)
+                        .senha("123456")
                         .build()
         );
     }
@@ -87,6 +92,8 @@ class SolicitacaoControllerIntegrationTest {
                 Funcionario.builder()
                         .nome("Funcionario Teste")
                         .cargo(CargoFuncionario.GERENTE)
+                        .email("funcionario" + System.currentTimeMillis() + "@example.com")
+                        .senha("123456")
                         .build()
         );
     }
@@ -127,9 +134,21 @@ class SolicitacaoControllerIntegrationTest {
 
     @Test
     void deveListarTodasSolicitacoes() throws Exception {
+        // Criar dados de teste para garantir que há solicitações para listar
+        Bairro bairro = salvarBairro();
+        Usuario usuario = salvarUsuario(bairro);
+        Funcionario funcionario = salvarFuncionario();
+
+        SolicitacaoDTO dto = criarSolicitacaoDTO("Teste listagem", usuario, funcionario, bairro);
+        mockMvc.perform(post("/api/solicitacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
+
         mockMvc.perform(get("/api/solicitacoes"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray());
     }
 
     @Test
