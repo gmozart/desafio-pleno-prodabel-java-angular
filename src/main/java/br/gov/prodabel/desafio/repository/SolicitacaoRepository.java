@@ -16,6 +16,21 @@ import java.util.Optional;
 @Repository
 public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> {
 
+    @Query("SELECT DISTINCT s FROM Solicitacao s " +
+           "LEFT JOIN FETCH s.usuario u " +
+           "LEFT JOIN FETCH u.bairro " +
+           "LEFT JOIN FETCH s.funcionario f " +
+           "LEFT JOIN FETCH s.bairro b")
+    List<Solicitacao> findAllWithRelations();
+
+    @Query("SELECT s FROM Solicitacao s " +
+           "LEFT JOIN FETCH s.usuario u " +
+           "LEFT JOIN FETCH u.bairro " +
+           "LEFT JOIN FETCH s.funcionario f " +
+           "LEFT JOIN FETCH s.bairro b " +
+           "WHERE s.id = :id")
+    Optional<Solicitacao> findByIdWithRelations(@Param("id") Long id);
+
     boolean existsByUsuarioAndFuncionarioAndBairro(Usuario usuario, Funcionario funcionario, Bairro bairro);
 
     Optional<Solicitacao> findByUsuarioAndFuncionarioAndBairro(Usuario usuario, Funcionario funcionario, Bairro bairro);

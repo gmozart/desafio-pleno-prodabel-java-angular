@@ -17,21 +17,45 @@ public class SolicitacaoDTO {
     private Long id;
     private String descricao;
     private LocalDateTime dataCriacao;
-    private Long usuarioId;
-    private Long funcionarioId;
-    private BairroDTO bairro;
     private StatusSolicitacao status;
 
+    // IDs (para compatibilidade)
+    private Long usuarioId;
+    private Long funcionarioId;
+    private Long bairroId;
+
+    // ✅ OBJETOS COMPLETOS
+    private UsuarioDTO usuario;
+    private FuncionarioDTO funcionario;
+    private BairroDTO bairro;
+
     public static SolicitacaoDTO of(Solicitacao solicitacao) {
-        return SolicitacaoDTO.builder()
+        SolicitacaoDTO dto = SolicitacaoDTO.builder()
                 .id(solicitacao.getId())
                 .descricao(solicitacao.getDescricao())
-                .bairro(BairroDTO.of(solicitacao.getBairro()))
                 .status(solicitacao.getStatus())
                 .dataCriacao(solicitacao.getDataCriacao())
-                .usuarioId(solicitacao.getUsuario() != null ? solicitacao.getUsuario().getId() : null)
-                .funcionarioId(solicitacao.getFuncionario() != null ? solicitacao.getFuncionario().getId() : null)
                 .build();
+
+        // Mapear Usuario
+        if (solicitacao.getUsuario() != null) {
+            dto.setUsuarioId(solicitacao.getUsuario().getId());
+            dto.setUsuario(UsuarioDTO.of(solicitacao.getUsuario())); // ✅ OBJETO COMPLETO
+        }
+
+        // Mapear Funcionario
+        if (solicitacao.getFuncionario() != null) {
+            dto.setFuncionarioId(solicitacao.getFuncionario().getId());
+            dto.setFuncionario(FuncionarioDTO.of(solicitacao.getFuncionario())); // ✅ OBJETO COMPLETO
+        }
+
+        // Mapear Bairro
+        if (solicitacao.getBairro() != null) {
+            dto.setBairroId(solicitacao.getBairro().getId());
+            dto.setBairro(BairroDTO.of(solicitacao.getBairro())); // ✅ OBJETO COMPLETO
+        }
+
+        return dto;
     }
 
     public static Solicitacao toEntity(SolicitacaoDTO dto, Usuario usuario, Funcionario funcionario, Bairro bairro) {
@@ -45,5 +69,3 @@ public class SolicitacaoDTO {
                 .build();
     }
 }
-
-

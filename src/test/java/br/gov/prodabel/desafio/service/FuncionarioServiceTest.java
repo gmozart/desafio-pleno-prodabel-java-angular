@@ -7,8 +7,11 @@ import br.gov.prodabel.desafio.domain.entity.Funcionario;
 import br.gov.prodabel.desafio.domain.enums.CargoFuncionario;
 import br.gov.prodabel.desafio.execption.ResourceNotFoundException;
 import br.gov.prodabel.desafio.repository.FuncionarioRepository;
+import br.gov.prodabel.desafio.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -16,13 +19,18 @@ import static org.mockito.Mockito.*;
 
 class FuncionarioServiceTest {
 
+
     private FuncionarioRepository funcionarioRepository;
+    private PasswordEncoder passwordEncoder;
+    private UsuarioRepository usuarioRepository;
     private FuncionarioService funcionarioService;
 
     @BeforeEach
     void setUp() {
         funcionarioRepository = mock(FuncionarioRepository.class);
-        funcionarioService = new FuncionarioService(funcionarioRepository);
+        passwordEncoder = mock(PasswordEncoder.class);
+        usuarioRepository = mock(UsuarioRepository.class);
+        funcionarioService = new FuncionarioService(funcionarioRepository, passwordEncoder, usuarioRepository);
     }
 
     @Test
@@ -72,9 +80,9 @@ class FuncionarioServiceTest {
 
     @Test
     void testAtualizar_Sucesso() {
-        Funcionario funcionario = Funcionario.builder().id(1L).nome("João").cargo(CargoFuncionario.ATENDENTE).build();
-        FuncionarioDTO dto =  FuncionarioDTO.builder().id(1L).nome("Maria").cargo(CargoFuncionario.GERENTE).build();
-        Funcionario atualizado = Funcionario.builder().id(1L).nome("Maria").cargo(CargoFuncionario.SUPORTE).build();
+        Funcionario funcionario = Funcionario.builder().id(1L).nome("João").email("joao@example.com").cargo(CargoFuncionario.ATENDENTE).build();
+        FuncionarioDTO dto =  FuncionarioDTO.builder().id(1L).nome("Maria").email("maria@example.com").cargo(CargoFuncionario.GERENTE).build();
+        Funcionario atualizado = Funcionario.builder().id(1L).nome("Maria").email("maria@example.com").cargo(CargoFuncionario.SUPORTE).build();
 
         when(funcionarioRepository.findById(1L)).thenReturn(Optional.of(funcionario));
         when(funcionarioRepository.save(any(Funcionario.class))).thenReturn(atualizado);
@@ -97,10 +105,10 @@ class FuncionarioServiceTest {
     void testDeletar_Sucesso() {
         Funcionario funcionario = Funcionario.builder().id(1L).nome("João").cargo(CargoFuncionario.GERENTE).build();
         when(funcionarioRepository.findById(1L)).thenReturn(Optional.of(funcionario));
-        doNothing().when(funcionarioRepository).deleteById(1L);
+        doNothing().when(funcionarioRepository).delete(any(Funcionario.class));
 
         assertDoesNotThrow(() -> funcionarioService.deletar(1L));
-        verify(funcionarioRepository, times(1)).deleteById(1L);
+        verify(funcionarioRepository, times(1)).delete(any(Funcionario.class));
     }
 
     @Test
