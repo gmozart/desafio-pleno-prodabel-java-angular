@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Docker & Environment ###
+.env
+docker/init-scripts/*.log
