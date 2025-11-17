@@ -1,14 +1,11 @@
 # ============================================
 # STAGE 1: Build da aplicação
 # ============================================
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 
 # Metadados
 LABEL maintainer="gmozart"
 LABEL description="Desafio Pleno Prodabel - Backend Spring Boot"
-
-# Instala Maven e dependências necessárias
-RUN apk add --no-cache maven
 
 # Define diretório de trabalho
 WORKDIR /app
@@ -33,9 +30,6 @@ RUN ls -la /app/target/
 # STAGE 2: Imagem de produção
 # ============================================
 FROM eclipse-temurin:17-jre-alpine
-
-# Instala wget para healthcheck
-RUN apk add --no-cache wget
 
 # Cria usuário não-root para executar a aplicação
 RUN addgroup -g 1000 spring && \
