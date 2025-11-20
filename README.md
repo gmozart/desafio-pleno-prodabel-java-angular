@@ -21,6 +21,19 @@ Gerencia **Usuários**, **Solicitações** e **Funcionários**, permitindo CRUD 
 
 ---
 
+## Documentação
+
+A documentação completa do projeto está organizada no diretório [`docs/`](docs/):
+
+- **[Índice da Documentação](docs/index.md)** - Ponto de entrada para toda a documentação
+- **[API de Autenticação](docs/api/auth.md)** - Endpoints de login e autenticação
+- **[API de Bairros](docs/api/bairro.md)** - Gerenciamento completo de bairros
+- **[API de Usuários](docs/api/usuario.md)** - Guia de uso da API de usuários
+
+Para documentação interativa da API, acesse o **Swagger UI** em: http://localhost:8080/swagger-ui/index.html
+
+---
+
 ## Tecnologias Utilizadas
 
 - **Backend:** Spring Boot 3.5.6, Java 17
