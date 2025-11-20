@@ -211,10 +211,10 @@ git checkout develop
 git pull origin develop
 
 # Delete the local branch
-git branch -d chore/ci-workflow
+git branch -d <your-branch-name>
 
 # If the branch wasn't fully merged, force delete (use with caution)
-git branch -D chore/ci-workflow
+git branch -D <your-branch-name>
 ```
 
 ### Delete Remote Branch
@@ -223,7 +223,7 @@ GitHub typically offers an option to delete the branch automatically after mergi
 
 ```bash
 # Delete the remote branch
-git push origin --delete chore/ci-workflow
+git push origin --delete <your-branch-name>
 ```
 
 Or use the GitHub web interface:
@@ -267,5 +267,3 @@ For issues or questions regarding the CI/CD pipeline:
 4. Contact the DevOps team
 
 ---
-
-**Last Updated**: 2025-11-20
